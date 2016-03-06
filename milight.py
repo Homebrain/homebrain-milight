@@ -11,6 +11,7 @@ Usage:
 
 import socket
 from time import sleep
+import logging
 
 # Zones used for selecting and turning on lamps,
 # the array used for turning lamps off is similar (see `off()` function)
@@ -25,6 +26,8 @@ BRIGHTNESS_LEVELS = len(_BRIGHTNESS_ARRAY)
 HUE_RED = 174;
 HUE_BLUE = 240;
 
+LOG = logging.getLogger("milight")
+
 def _get_zone(zone):
     return _ZONE_ARRAY[zone]
 
@@ -32,7 +35,7 @@ def _msg(b1, b2=0x00, b3=0x55):
     return bytes([b1, b2, b3])
 
 def _print_cmd(cmd):
-    print(list(map(hex, cmd)))
+    LOG.debug("Bytes sent to WiFi hub: " + str(list(map(hex, cmd))))
 
 def on(zone):
     msg = _msg(_get_zone(zone))
@@ -100,6 +103,8 @@ def fade_brightness(time, fadein=True):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+
     import sys
     cmd_to_f = {"on": on, "off": off, "hue": hue, "brightness": brightness, "whitemode": whitemode}
     if len(sys.argv) >= 2:
