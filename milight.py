@@ -100,9 +100,20 @@ def fade_brightness(time, fadein=True):
 
 
 if __name__ == "__main__":
+    import sys
+    cmd_to_f = {"on": on, "off": off, "hue": hue, "brightness": brightness, "whitemode": whitemode}
+    if len(sys.argv) >= 2:
+        cmd = sys.argv[1]
+
+    if len(sys.argv) == 2:
+        send_cmd(cmd_to_f[cmd]())
+    elif len(sys.argv) == 3:
+        arg = int(sys.argv[2])
+        send_cmd(cmd_to_f[cmd](arg))
+
     #blink(loop=False)
     #test_brightness_levels()
-    send_cmd(on(3))
-    send_cmd(hue(HUE_RED))
-    fade_brightness(15, fadein=False)
+    #send_cmd(on(3))
+    #send_cmd(hue(HUE_RED))
+    #fade_brightness(15, fadein=False)
 
