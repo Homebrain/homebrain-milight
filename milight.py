@@ -19,14 +19,12 @@ _ZONE_ARRAY = [0x42, 0x45, 0x47, 0x49, 0x4B]
 
 # The values below 0x02 do nothing, values above 0x1B also do nothing
 _BRIGHTNESS_ARRAY = list(range(0x02, 0x1C))
-#assert len(_BRIGHTNESS_ARRAY) == 19
-
 BRIGHTNESS_LEVELS = len(_BRIGHTNESS_ARRAY)
 
 HUE_RED = 174;
 HUE_BLUE = 240;
 
-LOG = logging.getLogger("milight")
+logger = logging.getLogger("milight")
 
 def _get_zone(zone):
     return _ZONE_ARRAY[zone]
@@ -35,7 +33,7 @@ def _msg(b1, b2=0x00, b3=0x55):
     return bytes([b1, b2, b3])
 
 def _print_cmd(cmd):
-    LOG.debug("Bytes sent to WiFi hub: " + str(list(map(hex, cmd))))
+    logger.debug("Bytes sent to WiFi hub: " + str(list(map(hex, cmd))))
 
 def on(zone):
     msg = _msg(_get_zone(zone))
@@ -66,59 +64,4 @@ def send_cmd(cmd):
     sock.sendto(cmd, ('255.255.255.255', 8899))
 
     # Ensures that the call is respected, calling repeatedly without this may cause package loss
-    sleep(0.5)
-
-def blink(loop=False):
-    while True:
-        ZONE = 0
-        SLEEP_TIME = 1
-        send_cmd(on(ZONE))
-        sleep(SLEEP_TIME)
-        send_cmd(off(ZONE))
-        if not loop:
-            break
-        sleep(SLEEP_TIME)
-
-def test_brightness_levels():
-    send_cmd(on(4))
-    sleep(1)
-    send_cmd(whitemode())
-    for b in range(len(_BRIGHTNESS_ARRAY)):
-        send_cmd(brightness(0))
-        sleep(1)
-        send_cmd(brightness(b))
-        sleep(1)
-
-def fade_brightness(time, fadein=True):
-    """
-    Fades in from lowest to highest during a total of the passed argument time.
-    If argument fadein is set to False it will instead fade out from the highest to lowest.
-    """
-    step = time/BRIGHTNESS_LEVELS
-    for i in range(BRIGHTNESS_LEVELS):
-        if not fadein:
-            i = (BRIGHTNESS_LEVELS-1) - i
-        send_cmd(brightness(i))
-        sleep(step)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-
-    import sys
-    cmd_to_f = {"on": on, "off": off, "hue": hue, "brightness": brightness, "whitemode": whitemode}
-    if len(sys.argv) >= 2:
-        cmd = sys.argv[1]
-
-    if len(sys.argv) == 2:
-        send_cmd(cmd_to_f[cmd]())
-    elif len(sys.argv) == 3:
-        arg = int(sys.argv[2])
-        send_cmd(cmd_to_f[cmd](arg))
-
-    #blink(loop=False)
-    #test_brightness_levels()
-    #send_cmd(on(3))
-    #send_cmd(hue(HUE_RED))
-    #fade_brightness(15, fadein=False)
-
+    sleep(0.05)
